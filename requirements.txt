@@ -1,0 +1,27 @@
+# Core FastAPI dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Database and Auth
+supabase>=2.0.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# HTTP and Environment
+requests>=2.31.0
+httpx>=0.25.0
+python-dotenv>=1.0.0
+
+# Data Models
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Image processing (Python 3.13 compatible)
+Pillow>=10.0.0
+
+# For AI integration (we'll use API calls instead of local models)
+openai>=1.0.0
+
+# Optional: If you want to try torch (may need --pre flag)
+# torch>=2.1.0 --index-url https://download.pytorch.org/whl/cpu
