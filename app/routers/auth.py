@@ -16,7 +16,7 @@ async def register_user(user_data: UserCreate):
     """Register a new user and return access token"""
     db = await get_database()
     
-    # CORRECTED: Re-added 'await' for a true async operation
+    # CORRECTED: Removed 'await' 
     existing_user_by_email =  db.table("users").select("id").eq("email", user_data.email).execute()
     if existing_user_by_email.data:
         raise HTTPException(
@@ -24,7 +24,7 @@ async def register_user(user_data: UserCreate):
             detail="Email already registered. Try logging in instead"
         )
         
-    # CORRECTED: Re-added 'await'
+    # CORRECTED: Removed 'await'
     existing_user_by_username =  db.table("users").select("id").eq("username", user_data.username).execute()
     if existing_user_by_username.data:
         raise HTTPException(
@@ -49,7 +49,7 @@ async def register_user(user_data: UserCreate):
         "last_study_date": None
     }
     
-    # CORRECTED: Re-added 'await'
+    # CORRECTED: Removed'await'
     result =  db.table("users").insert(new_user).execute()
     if not result.data:
         raise HTTPException(
@@ -71,7 +71,7 @@ async def login_user(login_data: UserLogin):
     
     db = await get_database()
     
-    # CORRECTED: Re-added 'await'
+    # CORRECTED: Removed 'await'
     user_result =  db.table("users").select("*").eq("email", login_data.email).execute()
     if not user_result.data:
         raise HTTPException(
@@ -91,7 +91,7 @@ async def login_user(login_data: UserLogin):
     access_token = create_access_token(data={"sub": user["id"]})
     
     # Return user data without password
-    user_response = UserResponse(**{k: v for k, v in user.items() if k != "password"})
+    user_response = UserResponse(**{k: v for k, v in user.items() if k != "password_hash"})
     return Token(access_token=access_token, user=user_response)
 
 @router.get("/me", response_model=UserResponse)
@@ -108,7 +108,7 @@ async def get_current_user(user_id: str = Depends(verify_token)):
         )
     
     user = user_result.data[0]
-    return UserResponse(**{k: v for k, v in user.items() if k != "password"})
+    return UserResponse(**{k: v for k, v in user.items() if k != "password_hash"})
 
 @router.put("/me", response_model=UserResponse)
 async def update_current_user(
@@ -118,7 +118,7 @@ async def update_current_user(
     """Update current user profile"""
     db = await get_database()
     
-    # CORRECTED: Re-added 'await'
+    # CORRECTED: Removed 'await'
     user_result =  db.table("users").select("*").eq("id", user_id).execute()
     if not user_result.data:
         raise HTTPException(
@@ -131,9 +131,9 @@ async def update_current_user(
     
     if not update_data:
         user = user_result.data[0]
-        return UserResponse(**{k: v for k, v in user.items() if k != "password"})
+        return UserResponse(**{k: v for k, v in user.items() if k != "password_hash"})
     
-    # CORRECTED: Re-added 'await'
+    # CORRECTED: Removed'await'
     if "username" in update_data:
         existing_username = db.table("users").select("*").eq("username", update_data["username"]).neq("id", user_id).execute()
         if existing_username.data:
@@ -142,7 +142,7 @@ async def update_current_user(
                 detail="Username already taken!"
             )
     
-    # CORRECTED: Re-added 'await'
+    # CORRECTED: Removed 'await'
     updated_result =  db.table("users").update(update_data).eq("id", user_id).execute()
     if not updated_result.data:
         raise HTTPException(
@@ -151,4 +151,4 @@ async def update_current_user(
         )
     
     updated_user = updated_result.data[0]
-    return UserResponse(**{k: v for k, v in updated_user.items() if k != "password"})
+    return UserResponse(**{k: v for k, v in updated_user.items() if k != "password_hash"})
